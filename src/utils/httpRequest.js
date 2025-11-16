@@ -51,28 +51,39 @@ const httpRequest = axios.create({
  * 
  * CÁCH HOẠT ĐỘNG:
  * - Khi API trả về response, interceptor này được gọi
- * - Nhận vào response object (có data, status, headers...)
- * - Trả về response.data (chỉ lấy phần data)
+ * - Nhận vào response object từ axios (có cấu trúc: { data: {...}, status, headers... })
+ * - Axios tự động unwrap response.data từ HTTP response
+ * - API endpoint cũng trả về { data: {...} } trong body
+ * - Nên cấu trúc thực tế là: response.data.data
+ * - Interceptor này trả về response.data.data để loại bỏ lớp "data" thừa
  * 
- * TẠI SAO CHỈ TRẢ VỀ response.data?
- * - Thông thường chỉ cần dùng data, không cần status/headers
- * - Giúp code ngắn gọn: không cần viết response.data.items, chỉ cần response.items
- * - Nhất quán: tất cả API calls đều trả về data trực tiếp
+ * TẠI SAO TRẢ VỀ response.data.data?
+ * - Axios tự động unwrap HTTP response body vào response.data
+ * - API endpoint trả về { data: {...} } trong body
+ * - Nên thực tế phải truy cập response.data.data để lấy data thực sự
+ * - Interceptor xử lý để code chỉ cần viết response.data thay vì response.data.data
+ * - Giúp response structure khớp với API endpoint (như khi test trực tiếp API)
  * 
  * VÍ DỤ:
+ * - API endpoint trả về: { data: { items: [...] } }
+ * - Axios nhận được: { data: { data: { items: [...] } }, status: 200, ... }
  * - Trước interceptor: const response = await httpRequest.get("/products")
- *                     const products = response.data.items
+ *                     const products = response.data.data.items  // Phải viết data.data
  * - Sau interceptor:  const response = await httpRequest.get("/products")
- *                     const products = response.items
+ *                     const products = response.data.items  // Chỉ cần data.items
  * 
  * LỢI ÍCH:
- * - Code ngắn gọn hơn
+ * - Code ngắn gọn: không cần viết response.data.data.items
+ * - Response structure khớp với API endpoint (như test trực tiếp)
  * - Nhất quán trong toàn bộ ứng dụng
  * - Có thể thêm logic xử lý error ở đây
  */
 httpRequest.interceptors.response.use((response) => {
-    // Trả về response.data thay vì toàn bộ response object
-    // Tất cả API calls sẽ nhận được data trực tiếp
+    // Axios tự động unwrap HTTP response body vào response.data
+    // API endpoint trả về { data: {...} } trong body
+    // Nên cấu trúc thực tế là: response.data.data
+    // Trả về response.data để code chỉ cần viết response.data thay vì response.data.data
+    // Giúp response structure khớp với API endpoint (như khi test trực tiếp API)
     return response.data;
 });
 

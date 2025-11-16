@@ -83,11 +83,14 @@ export function useFetchProducts() {
         // Phải wrap async function trong IIFE hoặc định nghĩa function riêng
         (async () => {
             // Gọi API để lấy danh sách sản phẩm
+            // response đã được interceptor xử lý, có cấu trúc giống API endpoint response
+            // Ví dụ: { data: { items: [...] } } thay vì { data: { data: { items: [...] } } }
             const response = await getProducts();
             
             // Dispatch action để lưu data vào Redux store
             // actions.setItems() tạo action, dispatch() gửi action đến store
             // Store sẽ gọi reducer để cập nhật state
+            // response.data.items: Truy cập items từ response (không cần response.data.data.items)
             dispatch(actions.setItems(response.data.items));
             
             // Set loading = false vì đã fetch xong

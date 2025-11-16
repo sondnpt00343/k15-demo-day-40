@@ -83,11 +83,14 @@ export function useFetchProvinces() {
         // Phải wrap async function trong IIFE hoặc định nghĩa function riêng
         (async () => {
             // Gọi API để lấy danh sách tỉnh/thành phố
+            // response đã được interceptor xử lý, có cấu trúc giống API endpoint response
+            // Ví dụ: { data: [...] } thay vì { data: { data: [...] } }
             const response = await getProvinces();
             
             // Dispatch action để lưu data vào Redux store
             // actions.setProvinces() tạo action, dispatch() gửi action đến store
             // Store sẽ gọi reducer để cập nhật state
+            // response.data: Truy cập data từ response (không cần response.data.data)
             dispatch(actions.setProvinces(response.data));
             
             // Set loading = false vì đã fetch xong
