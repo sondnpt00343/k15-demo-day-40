@@ -27,7 +27,7 @@ import { useDispatch } from "react-redux";
 import { useProducts, actions } from "@/features/product";
 
 // Import API service function
-import { getProducts } from "./services";
+import { getProducts } from ".";
 
 /**
  * CUSTOM HOOK: useFetchProducts
