@@ -18,7 +18,9 @@
 
 // Import custom hook để fetch danh sách sản phẩm
 // Hook này tự động gọi API, lưu vào Redux, và trả về loading state + data
-import { useFetchProducts } from "@/services/product";
+import { getItems } from "@/features/product/actions";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 /**
  * HOME COMPONENT
@@ -37,11 +39,14 @@ import { useFetchProducts } from "@/services/product";
  * - Key prop: Giúp React identify các element trong list
  */
 function Home() {
-    // useFetchProducts(): Custom hook tự động fetch data từ API
-    // Hook này trả về { isLoading, data }
-    // isLoading: boolean - đang tải hay không
-    // data: Array - danh sách sản phẩm từ Redux store
-    const { isLoading, data } = useFetchProducts();
+    const dispatch = useDispatch();
+    const { isLoading, items: products } = useSelector(
+        (state) => state.product
+    );
+
+    useEffect(() => {
+        dispatch(getItems());
+    }, [dispatch]);
 
     // Return JSX để render UI
     return (
@@ -51,11 +56,6 @@ function Home() {
 
             {/* Danh sách sản phẩm */}
             <ul>
-                {/* CONDITIONAL RENDERING: Hiển thị khác nhau dựa trên isLoading
-                    TẠI SAO DÙNG TERNARY OPERATOR?
-                    - Nếu isLoading = true → hiển thị "Loading..."
-                    - Nếu isLoading = false → hiển thị danh sách sản phẩm
-                    - Giúp UX tốt hơn: user biết đang tải data */}
                 {isLoading ? (
                     // Hiển thị khi đang tải data
                     <div>Loading...</div>
@@ -63,7 +63,7 @@ function Home() {
                     // Hiển thị danh sách sản phẩm khi đã có data
                     // Array.map(): Duyệt qua mảng và render mỗi phần tử thành JSX
                     // TẠI SAO DÙNG MAP? Để render danh sách động từ array
-                    data.map((product) => (
+                    products.map((product) => (
                         // <li>: List item cho mỗi sản phẩm
                         // key={product.id}: Key prop BẮT BUỘC khi render list
                         // TẠI SAO CẦN KEY?
@@ -72,7 +72,6 @@ function Home() {
                         //   - Key phải unique và stable (không đổi khi re-render)
                         //   - Dùng ID thay vì index để tránh bug khi list thay đổi
                         <li key={product.id}>
-                            {/* Hiển thị thông tin sản phẩm */}
                             {product.id}. {product.title} - {product.price}
                         </li>
                     ))

@@ -1,19 +1,19 @@
 /**
  * FILE: features/product/reducer.js
- * 
+ *
  * Đây là file định nghĩa reducer cho feature product.
  * Reducer là function quyết định state thay đổi như thế nào khi nhận action.
- * 
+ *
  * REDUCER LÀ GÌ?
  * - Reducer là pure function nhận (state hiện tại, action) và trả về state mới
  * - Reducer KHÔNG BAO GIỜ thay đổi state cũ (immutability)
  * - Reducer phải là pure function: không có side effect, cùng input → cùng output
- * 
+ *
  * TẠI SAO CẦN IMMUTABILITY?
  * - React Redux cần so sánh state cũ và mới để biết khi nào re-render
  * - Nếu mutate state cũ, React không biết state đã thay đổi
  * - Luôn tạo object/array mới thay vì sửa object/array cũ
- * 
+ *
  * CÁCH HOẠT ĐỘNG:
  * 1. Component dispatch action → store nhận action
  * 2. Store gọi reducer với (state hiện tại, action)
@@ -23,14 +23,14 @@
  */
 
 // Import action type constant
-import { SET_ITEMS } from "./consts";
+import { GET_ITEMS, SET_ITEMS } from "./consts";
 
 /**
  * INITIAL STATE: State ban đầu của feature product
- * 
+ *
  * initState định nghĩa cấu trúc và giá trị mặc định của state
  * Khi app khởi động, state.product sẽ có giá trị này
- * 
+ *
  * CẤU TRÚC:
  * {
  *     items: []  // Mảng rỗng để lưu danh sách sản phẩm
@@ -38,15 +38,16 @@ import { SET_ITEMS } from "./consts";
  */
 const initState = {
     items: [],
+    isLoading: false,
 };
 
 /**
  * REDUCER FUNCTION
- * 
+ *
  * @param {Object} state - State hiện tại của feature product (mặc định là initState)
  * @param {Object} action - Action object được dispatch (có type và payload)
  * @returns {Object} State mới (không bao giờ mutate state cũ)
- * 
+ *
  * CÁCH HOẠT ĐỘNG:
  * - Switch case kiểm tra action.type để biết xử lý action nào
  * - Mỗi case trả về state mới bằng cách spread state cũ và cập nhật phần cần thiết
@@ -55,6 +56,11 @@ const initState = {
 function reducer(state = initState, action) {
     // Switch case để xử lý các action type khác nhau
     switch (action.type) {
+        case GET_ITEMS:
+            return {
+                ...state,
+                isLoading: true,
+            };
         // Case SET_ITEMS: Cập nhật danh sách sản phẩm
         case SET_ITEMS:
             // TẠI SAO DÙNG SPREAD OPERATOR (...state)?
@@ -62,10 +68,11 @@ function reducer(state = initState, action) {
             // - Giữ nguyên các field khác (nếu có) trong state
             // - Chỉ cập nhật field "items" với giá trị mới từ action.payload
             return {
-                ...state,              // Copy tất cả field từ state cũ
-                items: action.payload,  // Cập nhật field "items" với dữ liệu mới
+                ...state, // Copy tất cả field từ state cũ
+                items: action.payload, // Cập nhật field "items" với dữ liệu mới
+                isLoading: false,
             };
-        
+
         // Default case: Action không liên quan đến product feature
         // Trả về state cũ không thay đổi
         // TẠI SAO CẦN DEFAULT? Vì Redux dispatch action đến TẤT CẢ reducer
